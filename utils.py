@@ -102,12 +102,10 @@ def get_punk_attrs(id):
         attrs.append(camelCase(attrTag.contents[0]))
     return attrs
 
-def deepcopy(d):
-    return {k:d[k] for k in d} 
 
 def get_punk_dict(id):
    '''
-      Retrieve a punk pages, pull type and attributes
+      Retrieve a punk page, pull type and attributes
       from HTML and return a dictionary of attribute to
       (-1,1) mapping where 1 is truthy for existence of 
       attribute
