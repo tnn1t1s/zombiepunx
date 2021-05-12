@@ -11,11 +11,22 @@ Functions:
 
 """
 import os
+import time
 import requests
 from collections import OrderedDict
+from bs4 import BeautifulSoup
+from re import sub
 
 __ROOT_DIR__ = os.path.dirname(os.path.abspath(__file__))
 __PUNK_DIR__ = f"{__ROOT_DIR__}/data/punx/images/training";
+
+def camelCase(string):
+  '''
+     Convert string to camelCase
+  '''
+  string = string.strip("\n")
+  string = sub(r"(_|-)+", " ", string).title().replace(" ", "")
+  return string[0].lower() + string[1:]
 
 def get_punk(id):
     '''
@@ -77,7 +88,7 @@ def get_attr_dict():
     '''
     d=OrderedDict()
     with open(f"{__ROOT_DIR__}/data/punx/list_attr_punx.csv") as f:
-        for attr in f.read().split(','):
+        for attr in f.read().strip('\n').split(','):
             d[attr]=-1
     return d
 
@@ -90,7 +101,12 @@ def get_punk_attrs(id):
        to return list of attributes
     '''
     typeClass="col-md-10 col-md-offset-1 col-xs-12"
-    punk_html=requests.get(f"https://www.larvalabs.com/cryptopunks/details/{id}").text
+    punk_page=requests.get(f"https://www.larvalabs.com/cryptopunks/details/{id}")
+    if(punk_page.status_code != 200):
+        print(punk_page.status_code)
+        return {}
+    punk_html=punk_page.text
+
     soup = BeautifulSoup(punk_html, 'html.parser')
     details = soup.find(id="punkDetails")
 
@@ -110,7 +126,7 @@ def get_punk_dict(id):
       (-1,1) mapping where 1 is truthy for existence of 
       attribute
    '''
-   od = {k:_ATTR_DICT[k] for k in __ATTR_DICT__} 
+   od = {k:__ATTR_DICT__[k] for k in __ATTR_DICT__} 
    attrs = get_punk_attrs(id)
    for attr in attrs:
       od[attr]=1
@@ -122,6 +138,8 @@ def get_punks(start, end):
     '''
     punks={}
     for id in range(start, end):
+        print(id)
+        time.sleep(3.3)
         punks[id] = get_punk_dict(id)
     return punks
 
