@@ -16,11 +16,13 @@ import requests
 from collections import OrderedDict
 from bs4 import BeautifulSoup
 from re import sub
+import matplotlib.image as mpimg
+import matplotlib.pyplot as plt
 
 __ROOT_DIR__ = os.path.dirname(os.path.abspath(__file__))
 __PUNK_DIR__ = f"{__ROOT_DIR__}/data/punx/images/training";
 
-def camelCase(string):
+def camel_case(string):
   '''
      Convert string to camelCase
   '''
@@ -110,12 +112,12 @@ def get_punk_attrs(id):
     soup = BeautifulSoup(punk_html, 'html.parser')
     details = soup.find(id="punkDetails")
 
-    punkType = camelCase(details.find(class_=typeClass).find('a').contents[0])
+    punkType = camel_case(details.find(class_=typeClass).find('a').contents[0])
 
     attrs=[punkType]
     attrTags = details.find(class_ = "row detail-row")
     for attrTag in attrTags.find_all('a'):
-        attrs.append(camelCase(attrTag.contents[0]))
+        attrs.append(camel_case(attrTag.contents[0]))
     return attrs
 
 
@@ -143,21 +145,18 @@ def get_punks(start, end):
         punks[id] = get_punk_dict(id)
     return punks
 
-def punks_to_csv(punks):
-    '''
-       Write `punks` to a csv
-    '''
-    return None
-
-def punks_from_csv(fp):
-    '''
-       Read punks from a csv
-    '''
-    return {}
-
-
-
-
-
-
-
+def plot_in_grid(n, images, predictions, labels):
+  '''
+    Plot `images` in an n*n grid with
+    prediction and labels as header
+  '''
+  (x,y) = (n,n)
+  fig = plt.figure(figsize=(9,14))
+  i=0
+  for i in range(1,(x*y)+1):
+    fig.add_subplot(x, y, i)
+    plt.imshow(images[i])
+    plt.title(f"{predictions[i][0]},{labels[i][0]}")
+    plt.axis('off')
+    i=i+1
+  return fig
